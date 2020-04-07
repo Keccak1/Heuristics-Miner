@@ -76,5 +76,5 @@ class DirectDependencyMatrix(IMatrix):
 
     def __check_relative_to_best_threshold(self):
         for row in self._matrix:
-            filter_row(row, DirectDependencyMatrix.calculate_relative_to_best_threshold(
+            filter_row(row, row >= DirectDependencyMatrix.calculate_relative_to_best_threshold(
                 row, self._relative_to_best_threshold))
