@@ -1,6 +1,7 @@
-from implementation.relation_matrix.util import filter_row
-from implementation.relation_matrix.imatrix import IMatrix
 import numpy as np
+
+from implementation.relation_matrix.util import filter_row
+from implementation.relation_matrix.i_matrix import IMatrix
 
 
 class DirectDependencyMatrix(IMatrix):
@@ -9,9 +10,10 @@ class DirectDependencyMatrix(IMatrix):
                  processes=None,
                  dependency_threshold=0,
                  relative_to_best_threshold=0,
-                 all_task_connected=True):
+                 all_task_connected=True,
+                 dtype=np.float64):
 
-        super().__init__(processes)
+        super().__init__(processes, dtype)
         self._dependency_threshold = dependency_threshold
         self._relative_to_best_threshold = relative_to_best_threshold
         self._all_task_connected = all_task_connected
@@ -28,6 +30,14 @@ class DirectDependencyMatrix(IMatrix):
     def all_task_connected(self):
         return self._all_task_connected
 
+    @staticmethod
+    def direct_dependency_value(T1fT2, T2fT1):
+        return (T1fT2-T2fT1)/(T1fT2+T2fT1+1)
+
+    @staticmethod
+    def calculate_relative_to_best_threshold(row, relative_to_best_threshold):
+        return np.max(row)*(1-relative_to_best_threshold)
+
     def set_dependency_threshold(self, dependency_threshold):
         self._dependency_threshold = dependency_threshold
 
@@ -37,44 +47,57 @@ class DirectDependencyMatrix(IMatrix):
     def set_all_task_connected(self, all_task_connected):
         self._all_task_connected = all_task_connected
 
-    def fill_matrix(self, processes):
-        self.count_dependency_instances(processes)
-        self.normalize_matrix()
-        self.__check_thresholds()
+    def set_processes(self, processes):
+        super().set_processes(processes, dtype=np.float64)
 
-    def count_dependency_instances(self, processes):
-        for process in processes:
-            for i in range(len(process.activities-1)):
-                following_activity_idx = self.get_index(process.activities[i])
-                followed_activity_idx = self.get_index(process.activities[i+1])
-                self._matrix[following_activity_idx][followed_activity_idx] += 1
+    def update_matrix(self):
+        self._matrix = self.direct_dependency_instances()
+        self._matrix = self.direct_dependency_normalize()
+        self._matrix = self.with_thresholds()
 
-    def normalize_matrix(self):
-        for idx, _ in np.ndenumrate(self._matrix):
-            T1fT2, T2fT1 = self[idx], self[reversed(idx)]
-            v = DirectDependencyMatrix.direct_dependency_value(T1fT2, T2fT1)
-            self.__set_on_index(idx, v)
+    def direct_dependency_instances(self):
+        matrix = self._reset_matrix()
+        if self._processes:
+            for process in self._processes:
+                for i in range(len(process.activities-1)):
+                    following_activity_idx = self.get_index(
+                        process.activities[i])
+                    followed_activity_idx = self.get_index(
+                        process.activities[i+1])
+                    matrix[following_activity_idx][followed_activity_idx] += 1
+        return matrix
 
-    @staticmethod
-    def direct_dependency_value(T1fT2, T2fT1):
-        return (T1fT2-T2fT1)/(T1fT2+T2fT1+1)
+    def direct_dependency_normalize(self):
+        matrix = self.direct_dependency_instances()
+        if matrix:
+            for idx, _ in np.ndenumrate(matrix):
+                T1fT2, T2fT1 = self[idx], self[reversed(idx)]
+                v = DirectDependencyMatrix.direct_dependency_value(
+                    T1fT2, T2fT1)
+                self._set_on_index(idx, v)
+        return matrix
 
-    @staticmethod
-    def calculate_relative_to_best_threshold(row, relative_to_best_threshold):
-        return np.max(row)*(1-relative_to_best_threshold)
+    def with_thresholds(self):
+        matrix = self.direct_dependency_normalize()
+        if matrix:
+            matrix = self.with_dependency_threshold()
+            matrix = self.with_relative_to_best_threshold()
+        return matrix
 
-    def __check_thresholds(self):
-        self.__check_dependency_threshold()
-        self.__check_relative_to_best_threshold
+    def with_dependency_threshold(self):
+        matrix = self.direct_dependency_normalize()
+        if matrix:
+            for row in matrix:
+                if self._all_task_connected and np.max(row) <= self._dependency_threshold:
+                    filter_row(row, row >= np.max(row))
+                else:
+                    filter_row(row, row >= self._dependency_threshold)
+        return matrix
 
-    def __check_dependency_threshold(self):
-        for row in self._matrix:
-            if self._all_task_connected and np.max(row) <= self._dependency_threshold:
-                filter_row(row, row >= np.max(row))
-            else:
-                filter_row(row, row >= self._dependency_threshold)
-
-    def __check_relative_to_best_threshold(self):
-        for row in self._matrix:
-            filter_row(row, row >= DirectDependencyMatrix.calculate_relative_to_best_threshold(
-                row, self._relative_to_best_threshold))
+    def with_relative_to_best_threshold(self):
+        matrix = self.direct_dependency_normalize()
+        if matrix:
+            for row in matrix:
+                filter_row(row, row >= DirectDependencyMatrix.calculate_relative_to_best_threshold(
+                    row, self._relative_to_best_threshold))
+        return matrix

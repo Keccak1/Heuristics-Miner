@@ -1,28 +1,39 @@
+import numpy as np
+
 from functools import reduce
 from abc import ABC, abstractmethod
 
-from ..util import unique_concatenate
 from implementation.process_mining_base import ProcessEvent, ProcessInstance, Log
-import numpy as np
+from ..util import unique_concatenate
 
 
 class IMatrix(ABC):
 
-    def __init__(self, processes=None, dtype=np.int):
+    def __init__(self,
+                 processes=None,
+                 dtype=np.float64):
+
         self._activities = []
         self._matrix = None
-        if processes:
-            self.init_matrix(processes, dtype=dtype)
-
+        if self._processes:
+            self.set_processes(processes, dtype=dtype)
 
     def __getitem__(self, index):
         return self.matrix[index[0]][index[1]]
-    
-    def __set_on_index(self, index, val):
+
+    def _set_on_index(self, index, val):
         self._matrix[index[0], index[1]] = val
-    
+
+    def _copy_matrix(self):
+        return np.copy(self._matrix)
+
+    def _reset_matrix(self):
+        return np.full(self._matrix.shape,
+                       None if not self.matrix else 0,
+                       self._matrix.dtype)
+
     @abstractmethod
-    def fill_matrix(self, processes):
+    def update_matrix(self):
         pass
 
     @classmethod
@@ -37,15 +48,21 @@ class IMatrix(ABC):
     def activities(self):
         return self._activities
 
+    @property
+    def dtype(self):
+        return self._matrix.dtype
+
     def get_index(self, activity):
         try:
             return self.activities.index(activity)
         except ValueError as ve:
             raise ValueError(f"{ve} Activty not exists.")
 
-    def init_matrix(self, processes, dtype=np.int):
+    def set_processes(self, processes, dtype=np.int):
+        self._processes = processes
         self._activities = sorted(reduce(unique_concatenate,
                                          [p.activities for p in processes]))
+
         m_size = len(self._activities)
         self._matrix = np.zeros(shape=(m_size, m_size), dtype=dtype)
-        self.fill_matrix(processes)
+        self.update_matrix()
