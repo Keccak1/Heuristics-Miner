@@ -1,9 +1,11 @@
 import numpy as np
 
 from implementation.relation_matrix.loops_matrix.i_loop_matrix import ILoopMatrix
+from implementation.relation_matrix.util import set_on_index, filter_row
 
 
 class OneLengthLoopMatrix(ILoopMatrix):
+
     def __init__(self,
                  processes=None,
                  loops_threshold=0):
@@ -18,7 +20,7 @@ class OneLengthLoopMatrix(ILoopMatrix):
         matrix = self._reset_matrix()
         if self._processes:
             for process in self._processes:
-                for i in range(len(process.activities-1)):
+                for i in range(len(process.activities)-1):
                     if process.activities[i] == process.activities[i+1]:
                         activity_index = self.get_index(process.activities[i])
                         matrix[activity_index][activity_index] += 1
@@ -26,9 +28,9 @@ class OneLengthLoopMatrix(ILoopMatrix):
 
     def length_loops_normalize(self):
         matrix = self.length_loops()
-        if matrix:
-            for i in len(matrix):
+        if matrix.any():
+            for i in range(len(matrix)):
                 loops_size = matrix[i][i]
                 value = OneLengthLoopMatrix.one_length_loops_value(loops_size)
-                self._set_on_index((i, i), value)
+                set_on_index(matrix, (i, i), value)
         return matrix

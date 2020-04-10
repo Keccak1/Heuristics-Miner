@@ -11,12 +11,12 @@ class IMatrix(ABC):
 
     def __init__(self,
                  processes=None,
-                 dtype=np.float64):
+                 datatype=np.float64):
 
         self._activities = []
         self._matrix = None
-        if self._processes:
-            self.set_processes(processes, dtype=dtype)
+        if processes:
+            self.set_processes(processes, datatype=datatype)
 
     def __getitem__(self, index):
         return self.matrix[index[0]][index[1]]
@@ -29,7 +29,7 @@ class IMatrix(ABC):
 
     def _reset_matrix(self):
         return np.full(self._matrix.shape,
-                       None if not self.matrix else 0,
+                       0,
                        self._matrix.dtype)
 
     @abstractmethod
@@ -58,11 +58,11 @@ class IMatrix(ABC):
         except ValueError as ve:
             raise ValueError(f"{ve} Activty not exists.")
 
-    def set_processes(self, processes, dtype=np.int):
+    def set_processes(self, processes, datatype=np.float64):
         self._processes = processes
         self._activities = sorted(reduce(unique_concatenate,
                                          [p.activities for p in processes]))
 
         m_size = len(self._activities)
-        self._matrix = np.zeros(shape=(m_size, m_size), dtype=dtype)
+        self._matrix = np.zeros(shape=(m_size, m_size), dtype=datatype)
         self.update_matrix()

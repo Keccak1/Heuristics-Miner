@@ -84,11 +84,12 @@ class Log:
         self.processes.append(process)
 
     def add_process_event(self, case_id, process_event):
-        process_filter = list(filter(lambda p:p.case_id == case_id , self.processes))
+        process_filter = list(
+            filter(lambda p: p.case_id == case_id, self.processes))
         if not process_filter:
             process = ProcessInstance(case_id)
             self.add_process(process)
         else:
             process = process_filter[0]
-        
+
         process.add_event(process_event)
