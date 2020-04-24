@@ -1,6 +1,6 @@
 import numpy as np
 
-from implementation.relation_matrix.util import filter_row, set_on_index, matrix_on
+from implementation.relation_matrix.util import filter_row, filter_matrix, set_on_index, matrix_on
 from implementation.relation_matrix.i_matrix import IMatrix
 
 
@@ -35,7 +35,7 @@ class LongDistanceDependencyMatrix(IMatrix):
         self._long_distance_threshold = long_distance_threshold
 
     def update_matrix(self):
-        self._matrix = self.long_distance_dependency_instances()
+        self._matrix = self.long_distance_dependency_normalize()
 
     def long_distance_dependency_instances(self):
         matrix = self._reset_matrix()
@@ -62,8 +62,7 @@ class LongDistanceDependencyMatrix(IMatrix):
     def with_threshold(self):
         matrix = self.long_distance_dependency_normalize()
         if matrix.any():
-            for row in matrix:
-                filter_row(row, row >= self._long_distance_threshold)
+            filter_matrix(matrix, matrix >= self._long_distance_threshold)
         return matrix
 
     def _count_long_dinstance_dependecy_instances(self,

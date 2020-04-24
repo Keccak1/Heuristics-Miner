@@ -45,6 +45,10 @@ class IMatrix(ABC):
         return self._matrix
 
     @property
+    def processes(self):
+        return self._processes
+
+    @property
     def activities(self):
         return self._activities
 

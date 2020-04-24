@@ -15,7 +15,7 @@ class DirectDependencyMatrix(IMatrix):
 
         self._dependency_threshold = dependency_threshold
         self._relative_to_best_threshold = relative_to_best_threshold
-        self._all_task_connected = all_task_conSnected
+        self._all_task_connected = all_task_connected
         super().__init__(processes, datatype=np.float64)
 
     @property
