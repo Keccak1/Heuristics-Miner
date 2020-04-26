@@ -1,6 +1,6 @@
 import numpy as np
 
-from implementation.relation_matrix.util import matrix_on
+from implementation.relation_matrix.util import matrix_on, set_on_index
 from implementation.relation_matrix.loops_matrix.i_loop_matrix import ILoopMatrix
 
 
@@ -34,5 +34,5 @@ class TwoLengthLoopMatrix(ILoopMatrix):
                     matrix, tuple(reversed(idx)))
                 value = TwoLengthLoopMatrix.two_length_loops_value(
                     T1fT2, T2fT1)
-                self._set_on_index(idx, value)
+                set_on_index(matrix, idx, value)
         return matrix

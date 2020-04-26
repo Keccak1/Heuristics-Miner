@@ -36,7 +36,8 @@ class ILoopMatrix(IMatrix):
     def with_threshold(self):
         matrix = self.length_loops_normalize()
         if matrix.any():
-            return filter_matrix(matrix, matrix >= self.loops_threshold)
+            filter_matrix(matrix, matrix >= self.loops_threshold)
+        return matrix
 
     def update_matrix(self):
         self._matrix = self.with_threshold()

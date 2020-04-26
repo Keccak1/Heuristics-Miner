@@ -80,7 +80,7 @@ class DirectDependencyMatrix(IMatrix):
         if instances_matrix.any():
             for idx, _ in np.ndenumerate(instances_matrix):
                 T1fT2 = matrix_on(instances_matrix, idx)
-                T2fT1 = matrix_on(instances_matrix, list(reversed(idx)))
+                T2fT1 = matrix_on(instances_matrix, tuple(reversed(idx)))
                 val = DirectDependencyMatrix.direct_dependency_value(
                     T1fT2, T2fT1)
                 set_on_index(matrix, idx, val)
