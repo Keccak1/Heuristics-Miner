@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
+    <width>531</width>
     <height>654</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Heuristics Minner</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: grey;
@@ -233,7 +233,7 @@ background-color:grey;
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="ignore_loop_dependency_threshold">
+        <widget class="QCheckBox" name="ignore_loop_dependency_threshold_checkbox">
          <property name="text">
           <string>Ignore loop dependecy threshold</string>
          </property>

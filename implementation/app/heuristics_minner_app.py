@@ -23,12 +23,33 @@ class HeuristicsMinnerApp(QMainWindow):
             "/home/marcin/dev/studies/Heuristics-Miner/implementation/app/ui/heuristics.ui", self)
         self._setup_sliders()
         self._setup_buttons()
+        self._setup_checkboxes()
         self.center()
         self.show()
 
     def _setup_buttons(self):
         self.load_push_button.clicked.connect(self.load_log_dialog)
         self.draw_push_button.clicked.connect(self.draw)
+
+    def _setup_checkboxes(self):
+        self.all_task_connected_checkbox.toggled.connect(
+            self._update_long_distance_dependance_value)
+        self.long_distance_dependance_checkbox.toggled.connect(
+            self._update_all_task_connected_value)
+        self.ignore_loop_dependency_threshold_checkbox.toggled.connect(
+            self._update_ignore_loop_dependency_threshold_value)
+
+    def _update_long_distance_dependance_value(self):
+        if self._minner:
+            self.draw()
+
+    def _update_ignore_loop_dependency_threshold_value(self):
+        if self._minner:
+            self.draw()
+
+    def _update_all_task_connected_value(self):
+        if self._minner:
+            self.draw()
 
     def _setup_sliders(self):
         self.relative_to_best_slider.setRange(0, 100)
@@ -140,7 +161,7 @@ class HeuristicsMinnerApp(QMainWindow):
         length_two_loops_threshold = float(self.length_two_loops_value.text())
         long_distance_threshold = float(self.long_distance_value.text())
         all_task_connected = self.all_task_connected_checkbox.isChecked()
-        ignore_loop_dependency_threshold = self.ignore_loop_dependency_threshold.isChecked()
+        ignore_loop_dependency_threshold = self.ignore_loop_dependency_threshold_checkbox.isChecked()
         ignore_long_distance_dependance_threshold = self.long_distance_dependance_checkbox.isChecked()
 
         long_distance_threshold = long_distance_threshold if (
