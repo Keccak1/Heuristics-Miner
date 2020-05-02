@@ -201,6 +201,8 @@ class HeuristicsMinnerApp(QMainWindow):
             print(self._minner.two_loops_matrix.matrix)
             print(self._minner.direct_dependency_matrix.matrix)
             print(self._minner.long_distance_matrix.matrix)
+            print(self._minner.start_activites)
+            print(self._minner.end_activites)
         else:
             self.print_error_msg(QMessageBox.Critical, "Minner not created",
                                  "Load data and create heuristics minner first.")
