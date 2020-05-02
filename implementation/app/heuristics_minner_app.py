@@ -185,9 +185,6 @@ class HeuristicsMinnerApp(QMainWindow):
                        dt_type=DtType.TIMESTAMP)
 
         self._minner = HeuristicsMinner.from_log(log)
-        print(self._minner.activities)
-        print(self._minner.events_amount)
-        print(self._minner.alpha_minner_matrix.matrix)
         self.draw()
 
     def draw(self):
@@ -197,6 +194,13 @@ class HeuristicsMinnerApp(QMainWindow):
             self._update_parameters()        
             self._minner.update()
             QApplication.restoreOverrideCursor()
+            print(self._minner.activities)
+            print(self._minner.events_amount)
+            print(self._minner.alpha_minner_matrix.matrix)
+            print(self._minner.one_loops_matrix.matrix)
+            print(self._minner.two_loops_matrix.matrix)
+            print(self._minner.direct_dependency_matrix.matrix)
+            print(self._minner.long_distance_matrix.matrix)
         else:
             self.print_error_msg(QMessageBox.Critical, "Minner not created",
                                  "Load data and create heuristics minner first.")
