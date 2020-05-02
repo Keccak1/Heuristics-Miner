@@ -1,4 +1,5 @@
 from .util import unique_list
+from collections import defaultdict
 
 
 class ProcessEvent:
@@ -44,6 +45,13 @@ class ProcessInstance:
         return self._case_id
 
     @property
+    def events_amount(self):
+        ret = defaultdict(lambda: 0)
+        for event in self._process_events:
+            ret[event.activity] += 1
+        return ret
+
+    @property
     def processes_events(self):
         return self._process_events
 
@@ -66,6 +74,7 @@ class Log:
     def __init__(self, name):
         self._name = name
         self._processes = []
+        self._instances = defaultdict(lambda: 0)
 
     @property
     def name(self):
@@ -80,6 +89,14 @@ class Log:
     def processes(self):
         return self._processes
 
+    @property
+    def events_amount(self):
+        ret = defaultdict(lambda: 0)
+        for process in self._processes:
+            for event, amount in process.events_amount.items():
+                ret[event] += amount
+        return ret
+
     def add_process(self, process):
         self.processes.append(process)
 
@@ -91,5 +108,4 @@ class Log:
             self.add_process(process)
         else:
             process = process_filter[0]
-
         process.add_event(process_event)

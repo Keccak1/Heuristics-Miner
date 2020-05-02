@@ -63,6 +63,10 @@ class HeuristicsMinner:
         return self._direct_dependency_matrix
 
     @property
+    def instances_vector(self):
+        return self._long_distance_matrix.instances_vector
+
+    @property
     def long_distance_matrix(self):
         return self._long_distance_matrix
 
@@ -73,6 +77,10 @@ class HeuristicsMinner:
     @property
     def two_loops_matrix(self):
         return self._two_loops_matrix
+
+    @property
+    def activities(self):
+        return self._direct_dependency_matrix.activities
 
     def set_processes(self, processes):
         self._processes = processes
@@ -113,13 +121,16 @@ class HeuristicsMinner:
                  two_loops_threshold=0,
                  long_distance_threshold=0):
 
-        return cls(log.processes,
-                   dependency_threshold,
-                   relative_to_best_threshold,
-                   all_task_connected,
-                   one_loops_threshold,
-                   two_loops_threshold,
-                   long_distance_threshold)
+        ret = cls(log.processes,
+                  dependency_threshold,
+                  relative_to_best_threshold,
+                  all_task_connected,
+                  one_loops_threshold,
+                  two_loops_threshold,
+                  long_distance_threshold)
+        
+        ret.events_amount = dict(log.events_amount)
+        return ret
 
     def _long_distance_matrix_params_changed(self):
         if self._long_distance_matrix:

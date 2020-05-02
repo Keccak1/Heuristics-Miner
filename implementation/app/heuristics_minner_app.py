@@ -185,13 +185,14 @@ class HeuristicsMinnerApp(QMainWindow):
                        dt_type=DtType.TIMESTAMP)
 
         self._minner = HeuristicsMinner.from_log(log)
+        print(self._minner.events_amount)
         self.draw()
 
     def draw(self):
 
         if self._minner:
             QApplication.setOverrideCursor(Qt.WaitCursor)
-            self._update_parameters()
+            self._update_parameters()        
             self._minner.update()
             QApplication.restoreOverrideCursor()
         else:
