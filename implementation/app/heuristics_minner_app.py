@@ -185,7 +185,9 @@ class HeuristicsMinnerApp(QMainWindow):
                        dt_type=DtType.TIMESTAMP)
 
         self._minner = HeuristicsMinner.from_log(log)
+        print(self._minner.activities)
         print(self._minner.events_amount)
+        print(self._minner.alpha_minner_matrix.matrix)
         self.draw()
 
     def draw(self):

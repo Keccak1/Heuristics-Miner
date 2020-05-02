@@ -2,6 +2,7 @@ from .relation_matrix.long_distance_dependency import LongDistanceDependencyMatr
 from .relation_matrix.loops_matrix.one_length_loop_relation import OneLengthLoopMatrix
 from .relation_matrix.loops_matrix.two_length_loop_relation import TwoLengthLoopMatrix
 from .relation_matrix.direct_dependency import DirectDependencyMatrix
+from .relation_matrix.alpha_algorithm_matrix import AlphaMinnerMatrix
 
 
 class HeuristicsMinner:
@@ -26,6 +27,7 @@ class HeuristicsMinner:
         self._long_distance_matrix = None
         self._one_loops_matrix = None
         self._two_loops_matrix = None
+        self._alpha_minner_matrix = None
 
         if self._processes:
             self.update()
@@ -69,6 +71,10 @@ class HeuristicsMinner:
     @property
     def long_distance_matrix(self):
         return self._long_distance_matrix
+    
+    @property
+    def alpha_minner_matrix(self):
+        return self._alpha_minner_matrix
 
     @property
     def one_loops_matrix(self):
@@ -128,7 +134,7 @@ class HeuristicsMinner:
                   one_loops_threshold,
                   two_loops_threshold,
                   long_distance_threshold)
-        
+
         ret.events_amount = dict(log.events_amount)
         return ret
 
@@ -173,6 +179,12 @@ class HeuristicsMinner:
 
         return True
 
+    def _alpha_minner_matrix_changed(self):
+        if self._alpha_minner_matrix:
+            return self._processes != self._alpha_minner_matrix.processes
+        
+        return True
+
     def update(self):
         if self._processes:
             if self._long_distance_matrix_params_changed():
@@ -186,6 +198,9 @@ class HeuristicsMinner:
 
             if self._two_loops_matrix_params_changed():
                 self.update_two_length_loops_matrix()
+
+            if self._alpha_minner_matrix_changed():
+                self.update_alpha_minner_matrix()
 
     def update_long_distance_matrix(self):
         self._long_distance_matrix = LongDistanceDependencyMatrix(self._processes,
@@ -204,3 +219,6 @@ class HeuristicsMinner:
     def update_two_length_loops_matrix(self):
         self._two_loops_matrix = TwoLengthLoopMatrix(self._processes,
                                                      self._two_loops_threshold)
+        
+    def update_alpha_minner_matrix(self):
+        self._alpha_minner_matrix = AlphaMinnerMatrix(self._processes)
