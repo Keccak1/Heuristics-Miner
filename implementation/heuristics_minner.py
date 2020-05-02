@@ -159,7 +159,7 @@ class HeuristicsMinner:
             threshold_changed = self._two_loops_threshold != self._two_loops_matrix.loops_threshold
             return processes_changed or threshold_changed \
                 or self._two_loops_matrix is None
-            
+
         return True
 
     def update(self):

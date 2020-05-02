@@ -33,9 +33,9 @@ class HeuristicsMinnerApp(QMainWindow):
 
     def _setup_checkboxes(self):
         self.all_task_connected_checkbox.toggled.connect(
-            self._update_long_distance_dependance_value)
-        self.long_distance_dependance_checkbox.toggled.connect(
             self._update_all_task_connected_value)
+        self.long_distance_dependance_checkbox.toggled.connect(
+            self._update_long_distance_dependance_value)
         self.ignore_loop_dependency_threshold_checkbox.toggled.connect(
             self._update_ignore_loop_dependency_threshold_value)
 
@@ -49,7 +49,8 @@ class HeuristicsMinnerApp(QMainWindow):
 
     def _update_all_task_connected_value(self):
         if self._minner:
-            self.draw()
+            self._minner.set_all_task_connected(
+                self.all_task_connected_checkbox.isChecked())
 
     def _setup_sliders(self):
         self.relative_to_best_slider.setRange(0, 100)
@@ -93,7 +94,6 @@ class HeuristicsMinnerApp(QMainWindow):
 
         if self._minner:
             self._minner.set_relative_to_best_threshold(float(value))
-            self.draw()
 
     def update_length_two_loops_value(self):
         value = HeuristicsMinnerApp.get_slider_value(
@@ -102,7 +102,6 @@ class HeuristicsMinnerApp(QMainWindow):
 
         if self._minner:
             self._minner.set_two_length_loops_threshold(float(value))
-            self.draw()
 
     def update_length_one_loops_value(self):
         value = HeuristicsMinnerApp.get_slider_value(
@@ -111,7 +110,6 @@ class HeuristicsMinnerApp(QMainWindow):
 
         if self._minner:
             self._minner.set_one_length_loops_threshold(float(value))
-            self.draw()
 
     def update_dependecy_value(self):
         value = HeuristicsMinnerApp.get_slider_value(
@@ -120,7 +118,6 @@ class HeuristicsMinnerApp(QMainWindow):
 
         if self._minner:
             self._minner.set_dependency_threshold(float(value))
-            self.draw()
 
     def update_long_distance_value(self):
         value = HeuristicsMinnerApp.get_slider_value(
@@ -129,11 +126,12 @@ class HeuristicsMinnerApp(QMainWindow):
 
         if self._minner:
             self._minner.set_long_distance_threshold(float(value))
-            self.draw()
 
     def load_log_dialog(self):
         log_file = QFileDialog.getOpenFileName(self,
-                                               "Open log", str(os.getcwd()), "Log files (*.csv)")[0]
+                                               "Open log",
+                                               str(os.getcwd()),
+                                               "Log files (*.csv)")[0]
 
         if log_file:
             self.setup_columns(log_file)
@@ -143,53 +141,58 @@ class HeuristicsMinnerApp(QMainWindow):
             HeuristicsMinnerApp.get_columns(log_file), self)
 
         if log_dialog and len(log_dialog.values()) != len(list(set(log_dialog.values()))):
-            self.print_error_msg(QMessageBox.Critical, "Not valid columns",
+            self.print_error_msg(QMessageBox.Critical,
+                                 "Not valid columns",
                                  "Name of columns should be unique for timestamp, activity and case.")
+
             self.status_value_label.setText("Log not loaded")
-            self.status_value_label.setStyleSheet("font-size: 20px")
 
         else:
             self.status_value_label.setText("Log loaded")
-            self.status_value_label.setStyleSheet("font-size: 20px")
             self.setup_heuristics_minner(log_file, log_dialog)
+
+        self.status_value_label.setStyleSheet("font-size: 20px")
+
+    def _update_parameters(self):
+        if self._minner:
+            relative_to_best_threshold = float(
+                self.relative_to_best_value.text())
+            dependency_threshold = float(self.dependency_value.text())
+            length_one_loops_threshold = float(
+                self.length_one_loops_value.text())
+            length_two_loops_threshold = float(
+                self.length_two_loops_value.text())
+            long_distance_threshold = float(self.long_distance_value.text())
+            all_task_connected = self.all_task_connected_checkbox.isChecked()
+            ignore_loop_dependency_threshold = self.ignore_loop_dependency_threshold_checkbox.isChecked()
+            ignore_long_distance_dependance_threshold = self.long_distance_dependance_checkbox.isChecked()
+
+            long_distance_threshold = long_distance_threshold if (
+                not ignore_loop_dependency_threshold and not ignore_long_distance_dependance_threshold) else 0
+
+            self._minner.set_long_distance_threshold(long_distance_threshold)
+            self._minner.set_one_length_loops_threshold(length_one_loops_threshold)
+            self._minner.set_two_length_loops_threshold(length_two_loops_threshold)
+            self._minner.set_direct_dependecy_matrix_params(dependency_threshold,
+                                                            relative_to_best_threshold,
+                                                            all_task_connected)
 
     def setup_heuristics_minner(self, log_file, columns):
 
-        relative_to_best_threshold = float(self.relative_to_best_value.text())
-        dependency_threshold = float(self.dependency_value.text())
-        length_one_loops_threshold = float(self.length_one_loops_value.text())
-        length_two_loops_threshold = float(self.length_two_loops_value.text())
-        long_distance_threshold = float(self.long_distance_value.text())
-        all_task_connected = self.all_task_connected_checkbox.isChecked()
-        ignore_loop_dependency_threshold = self.ignore_loop_dependency_threshold_checkbox.isChecked()
-        ignore_long_distance_dependance_threshold = self.long_distance_dependance_checkbox.isChecked()
+        log = from_csv(log_file, columns["case_column"],
+                       columns["activity_column"],
+                       columns["timestamp_column"],
+                       dt_type=DtType.TIMESTAMP)
 
-        long_distance_threshold = long_distance_threshold if (
-            not ignore_loop_dependency_threshold and not ignore_long_distance_dependance_threshold) else 0
-
-        log = from_csv(log_file, columns["case_column"], columns["activity_column"],
-                       columns["timestamp_column"], dt_type=DtType.TIMESTAMP)
-
-        self._minner = HeuristicsMinner.from_log(log,
-                                                 dependency_threshold,
-                                                 relative_to_best_threshold,
-                                                 all_task_connected,
-                                                 length_one_loops_threshold,
-                                                 length_two_loops_threshold,
-                                                 long_distance_threshold)
-
+        self._minner = HeuristicsMinner.from_log(log)
         self.draw()
 
     def draw(self):
 
         if self._minner:
             QApplication.setOverrideCursor(Qt.WaitCursor)
-
-            print(self._minner.long_distance_matrix.matrix)
-            print(self._minner.one_loops_matrix.matrix)
-            print(self._minner.two_loops_matrix.matrix)
-            print(self._minner.direct_dependency_matrix.matrix)
-
+            self._update_parameters()
+            self._minner.update()
             QApplication.restoreOverrideCursor()
         else:
             self.print_error_msg(QMessageBox.Critical, "Minner not created",
