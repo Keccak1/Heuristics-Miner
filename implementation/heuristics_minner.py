@@ -6,7 +6,6 @@ from .relation_matrix.alpha_algorithm_matrix import AlphaMinnerMatrix
 
 from .util import unique_list
 
-
 class HeuristicsMinner:
     def __init__(self,
                  processes=None,
@@ -101,7 +100,7 @@ class HeuristicsMinner:
     @property
     def end_events(self):
         return [p.end_event for p in self._processes] if self._processes else []
-
+    
     @property
     def start_activites(self):
         return unique_list([event.activity for event in self.start_events])
@@ -165,7 +164,7 @@ class HeuristicsMinner:
             processes_changed = self._processes != self._long_distance_matrix.processes
             long_distance_threshold_changed = self._long_distance_threshold != self._long_distance_matrix.long_distance_threshold
             return processes_changed or \
-                   long_distance_threshold_changed
+                long_distance_threshold_changed
 
         return True
 
@@ -177,9 +176,9 @@ class HeuristicsMinner:
             all_task_connected_changed = self._all_task_connected != self._direct_dependency_matrix.all_task_connected
 
             return processes_changed or \
-                   direct_dependency_threshold_changed \
-                   or relative_to_best_threshold_changed \
-                   or all_task_connected_changed
+                direct_dependency_threshold_changed \
+                or relative_to_best_threshold_changed \
+                or all_task_connected_changed
 
         return True
 
@@ -188,7 +187,7 @@ class HeuristicsMinner:
             processes_changed = self._processes != self._one_loops_matrix.processes
             threshold_changed = self._one_loops_threshold != self._one_loops_matrix.loops_threshold
             return processes_changed or \
-                   threshold_changed
+                threshold_changed
 
         return True
 
@@ -197,7 +196,7 @@ class HeuristicsMinner:
             processes_changed = self._processes != self._two_loops_matrix.processes
             threshold_changed = self._two_loops_threshold != self._two_loops_matrix.loops_threshold
             return processes_changed or threshold_changed \
-                   or self._two_loops_matrix is None
+                or self._two_loops_matrix is None
 
         return True
 
