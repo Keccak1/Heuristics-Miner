@@ -4,6 +4,8 @@ from .relation_matrix.loops_matrix.two_length_loop_relation import TwoLengthLoop
 from .relation_matrix.direct_dependency import DirectDependencyMatrix
 from .relation_matrix.alpha_algorithm_matrix import AlphaMinnerMatrix
 
+from .util import unique_list
+
 
 class HeuristicsMinner:
     def __init__(self,
@@ -71,7 +73,7 @@ class HeuristicsMinner:
     @property
     def long_distance_matrix(self):
         return self._long_distance_matrix
-    
+
     @property
     def alpha_minner_matrix(self):
         return self._alpha_minner_matrix
@@ -87,6 +89,26 @@ class HeuristicsMinner:
     @property
     def activities(self):
         return self._direct_dependency_matrix.activities
+
+    @property
+    def processes(self):
+        return self._processes
+
+    @property
+    def start_events(self):
+        return [p.start_event for p in self._processes] if self._processes else []
+
+    @property
+    def end_events(self):
+        return [p.end_event for p in self._processes] if self._processes else []
+
+    @property
+    def start_activites(self):
+        return unique_list([event.activity for event in self.start_events])
+
+    @property
+    def end_activites(self):
+        return unique_list([event.activity for event in self.end_events])
 
     def set_processes(self, processes):
         self._processes = processes
@@ -143,7 +165,7 @@ class HeuristicsMinner:
             processes_changed = self._processes != self._long_distance_matrix.processes
             long_distance_threshold_changed = self._long_distance_threshold != self._long_distance_matrix.long_distance_threshold
             return processes_changed or \
-                long_distance_threshold_changed
+                   long_distance_threshold_changed
 
         return True
 
@@ -155,9 +177,9 @@ class HeuristicsMinner:
             all_task_connected_changed = self._all_task_connected != self._direct_dependency_matrix.all_task_connected
 
             return processes_changed or \
-                direct_dependency_threshold_changed \
-                or relative_to_best_threshold_changed \
-                or all_task_connected_changed
+                   direct_dependency_threshold_changed \
+                   or relative_to_best_threshold_changed \
+                   or all_task_connected_changed
 
         return True
 
@@ -166,7 +188,7 @@ class HeuristicsMinner:
             processes_changed = self._processes != self._one_loops_matrix.processes
             threshold_changed = self._one_loops_threshold != self._one_loops_matrix.loops_threshold
             return processes_changed or \
-                threshold_changed
+                   threshold_changed
 
         return True
 
@@ -175,14 +197,14 @@ class HeuristicsMinner:
             processes_changed = self._processes != self._two_loops_matrix.processes
             threshold_changed = self._two_loops_threshold != self._two_loops_matrix.loops_threshold
             return processes_changed or threshold_changed \
-                or self._two_loops_matrix is None
+                   or self._two_loops_matrix is None
 
         return True
 
     def _alpha_minner_matrix_changed(self):
         if self._alpha_minner_matrix:
             return self._processes != self._alpha_minner_matrix.processes
-        
+
         return True
 
     def update(self):
@@ -219,6 +241,6 @@ class HeuristicsMinner:
     def update_two_length_loops_matrix(self):
         self._two_loops_matrix = TwoLengthLoopMatrix(self._processes,
                                                      self._two_loops_threshold)
-        
+
     def update_alpha_minner_matrix(self):
         self._alpha_minner_matrix = AlphaMinnerMatrix(self._processes)

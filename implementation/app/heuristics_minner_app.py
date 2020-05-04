@@ -9,6 +9,7 @@ from PyQt5.QtCore import Qt
 from implementation.app.log_dialog import LogDialog
 from implementation.heuristics_minner import HeuristicsMinner
 from implementation.log_parsers.csv_parser import from_csv, DtType
+from visualization.maker import Maker
 
 
 class HeuristicsMinnerApp(QMainWindow):
@@ -20,7 +21,7 @@ class HeuristicsMinnerApp(QMainWindow):
 
     def setup_ui(self):
         uic.loadUi(
-            "/home/marcin/dev/studies/Heuristics-Miner/implementation/app/ui/heuristics.ui", self)
+            "C:/Users/iadamska/Desktop/heurv2/Heuristics-Miner/implementation/app/ui/heuristics.ui", self)
         self._setup_sliders()
         self._setup_buttons()
         self._setup_checkboxes()
@@ -191,16 +192,28 @@ class HeuristicsMinnerApp(QMainWindow):
 
         if self._minner:
             QApplication.setOverrideCursor(Qt.WaitCursor)
-            self._update_parameters()        
+            self._update_parameters()
             self._minner.update()
             QApplication.restoreOverrideCursor()
-            print(self._minner.activities)
-            print(self._minner.events_amount)
-            print(self._minner.alpha_minner_matrix.matrix)
-            print(self._minner.one_loops_matrix.matrix)
-            print(self._minner.two_loops_matrix.matrix)
-            print(self._minner.direct_dependency_matrix.matrix)
-            print(self._minner.long_distance_matrix.matrix)
+
+            # get attributes values from gui
+            dir_dep_threshold = getattr(self._minner.direct_dependency_matrix, "dependency_threshold")
+            one_loop_threshold = getattr(self._minner.one_loops_matrix, "loops_threshold")
+            two_loops_threshold = getattr(self._minner.two_loops_matrix, "loops_threshold")
+            long_dist_threshold = getattr(self._minner.long_distance_matrix, "long_distance_threshold")
+            relative_to_best = getattr(self._minner, "relative_to_best_threshold")
+            all_tasks_connected = getattr(self._minner, "all_task_connected")
+
+            # create Maker object to draw all connections
+            maker = Maker(self._minner.activities, self._minner.events_amount, self._minner.alpha_minner_matrix.matrix,
+                          self._minner.one_loops_matrix.matrix, self._minner.two_loops_matrix.matrix,
+                          self._minner.direct_dependency_matrix.matrix, self._minner.long_distance_matrix.matrix,
+                          self._minner.start_activites, self._minner.end_activites, dir_dep_threshold,
+                          one_loop_threshold, two_loops_threshold, long_dist_threshold, relative_to_best,
+                          all_tasks_connected)
+
+            maker.draw()
+            
         else:
             self.print_error_msg(QMessageBox.Critical, "Minner not created",
                                  "Load data and create heuristics minner first.")

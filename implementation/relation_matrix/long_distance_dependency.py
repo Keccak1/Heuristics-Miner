@@ -29,6 +29,8 @@ class LongDistanceDependencyMatrix(IMatrix):
 
     @staticmethod
     def caluclate_long_dlong_distance_value(value_on_index, max_value):
+        if value_on_index == max_value:
+            return 0
         return value_on_index/(max_value+1)
 
     def set_long_distance_threshold(self, long_distance_threshold):

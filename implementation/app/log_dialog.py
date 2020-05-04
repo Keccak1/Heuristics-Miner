@@ -8,7 +8,7 @@ class LogDialog(QDialog):
         self.setup_ui()
 
     def setup_ui(self):
-        uic.loadUi("/home/marcin/dev/studies/Heuristics-Miner/implementation/app/ui/log_dialog.ui", self)
+        uic.loadUi("C:/Users/iadamska/Desktop/heurv2/Heuristics-Miner/implementation/app/ui/log_dialog.ui", self)
         self.show()
 
     def get_state(self):
