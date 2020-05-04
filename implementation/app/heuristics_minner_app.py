@@ -21,16 +21,23 @@ class HeuristicsMinnerApp(QMainWindow):
 
     def setup_ui(self):
         uic.loadUi(
-            "C:/Users/iadamska/Desktop/heurv2/Heuristics-Miner/implementation/app/ui/heuristics.ui", self)
+            "/home/marcin/dev/studies/Heuristics-Miner/implementation/app/ui/heuristics.ui", self)
         self._setup_sliders()
         self._setup_buttons()
         self._setup_checkboxes()
         self.center()
         self.show()
+        self._hide_relative_to_best()
 
     def _setup_buttons(self):
         self.load_push_button.clicked.connect(self.load_log_dialog)
         self.draw_push_button.clicked.connect(self.draw)
+        
+    def _hide_relative_to_best(self):
+        self.relative_to_best_label.setVisible(False)
+        self.relative_to_best_value.setVisible(False)
+        self.relative_to_best_slider.setVisible(False)
+    
 
     def _setup_checkboxes(self):
         self.all_task_connected_checkbox.toggled.connect(
@@ -172,8 +179,10 @@ class HeuristicsMinnerApp(QMainWindow):
                 not ignore_loop_dependency_threshold and not ignore_long_distance_dependance_threshold) else 0
 
             self._minner.set_long_distance_threshold(long_distance_threshold)
-            self._minner.set_one_length_loops_threshold(length_one_loops_threshold)
-            self._minner.set_two_length_loops_threshold(length_two_loops_threshold)
+            self._minner.set_one_length_loops_threshold(
+                length_one_loops_threshold)
+            self._minner.set_two_length_loops_threshold(
+                length_two_loops_threshold)
             self._minner.set_direct_dependecy_matrix_params(dependency_threshold,
                                                             relative_to_best_threshold,
                                                             all_task_connected)
@@ -197,11 +206,16 @@ class HeuristicsMinnerApp(QMainWindow):
             QApplication.restoreOverrideCursor()
 
             # get attributes values from gui
-            dir_dep_threshold = getattr(self._minner.direct_dependency_matrix, "dependency_threshold")
-            one_loop_threshold = getattr(self._minner.one_loops_matrix, "loops_threshold")
-            two_loops_threshold = getattr(self._minner.two_loops_matrix, "loops_threshold")
-            long_dist_threshold = getattr(self._minner.long_distance_matrix, "long_distance_threshold")
-            relative_to_best = getattr(self._minner, "relative_to_best_threshold")
+            dir_dep_threshold = getattr(
+                self._minner.direct_dependency_matrix, "dependency_threshold")
+            one_loop_threshold = getattr(
+                self._minner.one_loops_matrix, "loops_threshold")
+            two_loops_threshold = getattr(
+                self._minner.two_loops_matrix, "loops_threshold")
+            long_dist_threshold = getattr(
+                self._minner.long_distance_matrix, "long_distance_threshold")
+            relative_to_best = getattr(
+                self._minner, "relative_to_best_threshold")
             all_tasks_connected = getattr(self._minner, "all_task_connected")
 
             # create Maker object to draw all connections
@@ -213,7 +227,7 @@ class HeuristicsMinnerApp(QMainWindow):
                           all_tasks_connected)
 
             maker.draw()
-            
+
         else:
             self.print_error_msg(QMessageBox.Critical, "Minner not created",
                                  "Load data and create heuristics minner first.")

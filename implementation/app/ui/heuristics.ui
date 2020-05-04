@@ -118,6 +118,9 @@ background-color:grey;
        </item>
        <item row="0" column="1">
         <widget class="QLabel" name="relative_to_best_value">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>0.00</string>
          </property>
@@ -171,6 +174,9 @@ background-color:grey;
        </item>
        <item row="0" column="0">
         <widget class="QLabel" name="relative_to_best_label">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Relative to best:</string>
          </property>
@@ -191,6 +197,9 @@ background-color:grey;
        </item>
        <item row="0" column="2">
         <widget class="QSlider" name="relative_to_best_slider">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
